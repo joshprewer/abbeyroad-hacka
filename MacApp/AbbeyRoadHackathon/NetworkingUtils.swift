@@ -71,4 +71,3 @@ extension Requester {
         task.resume()
     }
 }
-

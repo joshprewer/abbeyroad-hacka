@@ -4,6 +4,27 @@ public class NetworkingClient: NSObject {
     public func searchRequest(
         _ parameters: SearchRequest,
         _ completion: @escaping (Result<SearchResponse, Error>) -> Void) {
+
+        let request = JSONRequester()
+        let requestOptions = HTTPRequestOptions(
+            URL: URL(string: "http://m2.audiocommons.org/api/audioclips/search?pattern=\(parameters.parameters)&limit=1&page=1&source=freesound")!,
+            verb: .get,
+            body: nil,
+            headers: nil
+        )
+        request.request(requestOptions) { (result: Result<SearchResponse, Error>) in
+            switch result  {
+            case .success(let data):
+                do {
+                    let response = try SearchResponse(data)
+                    return completion(.success(response))
+                } catch {
+                    return completion(.failure(error))
+                }
+            case .failure(let error):
+                return completion(.failure(error))
+            }
+        }
     }
 }
 
@@ -30,7 +51,7 @@ public class SearchResponse: NSObject {
 public class SearchRequest: NSObject {
     let parameters: [(key: String, value: String?)]
 
-    override init() {
-        parameters = []
+    init(category: String) {
+        parameters = [("category", category)]
     }
 }
